@@ -77,6 +77,7 @@ class GameHandler:
     
     def playBattleship(self):
         winner = None
+        name_of_winner = ''
         player_turn = True
         while not winner:
             if(player_turn):
@@ -88,6 +89,9 @@ class GameHandler:
                     shot_coords = (int(col), int(row))
                     if(self.enemy.board[shot_coords[0]][shot_coords[1]] != '*'):
                         self.player.fireAtLocation(shot_coords)
+                        winner = self.checkForWinner(self.enemy)
+                        if winner:
+                            name_of_winner = self.player
                         player_turn = False
                     else:
                         print("You've already shot there!")
@@ -98,11 +102,28 @@ class GameHandler:
                 try:
                     if(self.player.board[shot_coords[0]][shot_coords[1]] != '*'):
                         self.enemy.fireAtLocation(shot_coords)
+                        winner = self.checkForWinner(self.player)
+                        if winner:
+                            name_of_winner = self.enemy
                         player_turn = True
                     else:
                         continue
                 except:
                     pass
+        self.winGame(name_of_winner)
+    
+    def winGame(self, name_of_winner):
+        if name_of_winner == self.player:
+            print("You've won the game!")
+        elif name_of_winner == self.enemy:
+            print("Robots have taken over.")
+
+
+    def checkForWinner(self, player):
+        for ship in player.ships:
+            if(ship.isShipAlive()):
+                return False
+        return True
 
 
 class Board:
