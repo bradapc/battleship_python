@@ -64,6 +64,7 @@ class GameHandler:
                         continue
                 except:
                     continue
+        self.playBattleship()
 
     def checkInitialShipCoords(self, coordinate_list, board_entity):
         for c_pair in coordinate_list:
@@ -73,6 +74,35 @@ class GameHandler:
             except:
                 return False
         return True
+    
+    def playBattleship(self):
+        winner = None
+        player_turn = True
+        while not winner:
+            if(player_turn):
+                print("Shoot at col coordinate:")
+                col = input()
+                print("Shoot at row coordinate:")
+                row = input()
+                try:
+                    shot_coords = (int(col), int(row))
+                    if(self.enemy.board[shot_coords[0]][shot_coords[1]] != '*'):
+                        self.player.fireAtLocation(shot_coords)
+                        player_turn = False
+                    else:
+                        print("You've already shot there!")
+                except:
+                    print("Invalid shot placement.")
+            else:
+                shot_coords = (random.randint(0,9), random.randint(0,9))
+                try:
+                    if(self.player.board[shot_coords[0]][shot_coords[1]] != '*'):
+                        self.enemy.fireAtLocation(shot_coords)
+                        player_turn = True
+                    else:
+                        continue
+                except:
+                    pass
 
 
 class Board:
@@ -80,7 +110,7 @@ class Board:
         self.player = player
         self.ships = []
         self.board = []
-        self.enemy = ''
+        self.enemy = None
         for col in range(10):
             self.board.append([])
             for row in range(10):
@@ -102,11 +132,13 @@ class Board:
             case 'X':
                 self.enemy[coords[0]][coords[1]] = '*'
                 game.updateBoards()
-                print(f'Hit at {coords[0], coords[1]}!')
-            case '*':
-                print("Miss!")
+                if(self.player):
+                    print(f'Hit enemy at {coords[0], coords[1]}!')
             case '':
-                print("Miss!")
+                self.enemy[coords[0]][coords[1]] = '*'
+                game.updateBoards()
+                if(self.player):
+                    print("Shot missed!")
 
 class Ship:
     def __init__(self, is_player, length, coordinate_list):
