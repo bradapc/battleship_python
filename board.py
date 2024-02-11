@@ -13,7 +13,7 @@ class Board:
         else:
             print("---AI BOARD---")
         for col in range(len(self.board)):
-            print(f"{''.join('[X]' if item else '[ ]' for item in self.board[col])}")
+            print(f"{''.join(f'[{item}]' if item else '[ ]' for item in self.board[col])}")
 
 class Ship:
     def __init__(self, player, length, pos):
@@ -34,8 +34,12 @@ class Ship:
         for c_pair in coordinate_list:
             if(self.board_entity.board[c_pair[0]][c_pair[1]]):
                 return False
-        return True
-        
+        self.placeShip(coordinate_list)
+    
+    def placeShip(self, coordinate_list):
+        for c_pair in coordinate_list:
+            self.board_entity.board[c_pair[0]][c_pair[1]] = 'X'
+        self.board_entity.updateBoard()
 
 
 
@@ -44,5 +48,5 @@ player_board = Board(player=True)
 player_board.updateBoard()
 enemy_board = Board(player=False)
 enemy_board.updateBoard()
-destroyer = Ship(True, 3, (3,4))
+destroyer = Ship(True, 5, (3,4))
 destroyer.checkInitialShipCoords()
