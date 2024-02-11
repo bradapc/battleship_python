@@ -24,11 +24,16 @@ class GameHandler:
                 col = input()
                 print(f"Enter row coord for your {key} [{self.battleship_ships[key]}].")
                 row = input()
+                print(f"Do you want your {key} horizontal or vertical? (h or v)")
+                orientation = input()
                 try:
                     coords = (int(col), int(row))
                     coordinate_list = []
                     for i in range(self.battleship_ships[key]):
-                        coordinate_list.append((coords[0] + i, coords[1]))
+                        if(orientation.lower() == 'v'):
+                            coordinate_list.append((coords[0] + i, coords[1]))
+                        elif(orientation.lower() == 'h'):
+                            coordinate_list.append((coords[0], coords[1] + i))
                     if(self.checkInitialShipCoords(coordinate_list, self.player)):
                         print(f"{key} placed at {coords}.")
                         self.player.ships.append(Ship(True, self.battleship_ships[key], coordinate_list))
@@ -44,9 +49,13 @@ class GameHandler:
             while True:
                 try:
                     coords = (random.randint(0,9), random.randint(0,9))
+                    orientation = random.choice(['h', 'v'])
                     coordinate_list = []
                     for i in range(self.battleship_ships[key]):
-                        coordinate_list.append((coords[0] + i, coords[1]))
+                        if(orientation == 'h'):
+                            coordinate_list.append((coords[0] + i, coords[1]))
+                        elif(orientation == 'v'):
+                            coordinate_list.append((coords[0], coords[1] + i))
                     if(self.checkInitialShipCoords(coordinate_list, self.enemy)):
                         self.enemy.ships.append(Ship(False, self.battleship_ships[key], coordinate_list))
                         self.updateBoards()
