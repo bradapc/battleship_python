@@ -84,6 +84,8 @@ class GameHandler:
         winner = None
         name_of_winner = ''
         player_turn = True
+        ai_last_shot_coords = [0,0]
+        ai_nearby_choices = []
         while not winner:
             if(player_turn):
                 print("Shoot at col coordinate:")
@@ -104,10 +106,33 @@ class GameHandler:
                 except:
                     print("Invalid shot placement.")
             else:
-                shot_coords = (random.randint(0,9), random.randint(0,9))
+                if(self.player.board[ai_last_shot_coords[0]][ai_last_shot_coords[1]] == "*" or ai_nearby_choices):
+                    if(self.player.board[ai_last_shot_coords[0]][ai_last_shot_coords[1]] == "*" and ai_nearby_choices):
+                        ai_nearby_choices = []
+                    if(not ai_nearby_choices):
+                        last_col = ai_last_shot_coords[0]
+                        last_row = ai_last_shot_coords[1]
+                        ai_nearby_choices = [
+                            [last_col + 1, last_row],
+                            [last_col - 1, last_row],
+                            [last_col, last_row + 1],
+                            [last_col, last_row - 1]
+                        ]
+                        for choice in ai_nearby_choices:
+                            if choice[0] < 0 or choice[0] > 9 or choice[1] < 0 or choice[1] > 9:
+                                ai_nearby_choices.remove(choice)
+                    selection = random.choice(ai_nearby_choices)
+                    if(not selection):
+                        shot_coords = [random.randint(0,9), random.randint(0,9)]
+                    shot_coords = selection
+                    ai_nearby_choices.remove(selection)
+
+                else:
+                    shot_coords = [random.randint(0,9), random.randint(0,9)]
                 try:
                     if(self.player.board[shot_coords[0]][shot_coords[1]] not in ["*", "-"]):
                         self.enemy.fireAtLocation(shot_coords)
+                        ai_last_shot_coords = shot_coords
                         winner = self.checkForWinner(self.player)
                         if winner:
                             name_of_winner = self.enemy
@@ -115,7 +140,7 @@ class GameHandler:
                     else:
                         continue
                 except:
-                    pass
+                    continue
         self.winGame(name_of_winner)
     
     def winGame(self, name_of_winner):
