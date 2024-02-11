@@ -19,12 +19,14 @@ class Board:
         self.updateBoard()
 
     def updateBoard(self):
+        print("")
         if(self.player):
-            print("---PLAYER BOARD---")
+            print("PLAYER")
         else:
-            print("---AI BOARD---")
+            print("AI")
+        print("   0  1  2  3  4  5  6  7  8  9")
         for col in range(len(self.board)):
-            print(f"{''.join(f'[{item}]' if item else '[ ]' for item in self.board[col])}")
+            print(f"{col} {''.join(f'[{item}]' if item else '[ ]' for item in self.board[col])}")
 
     def fireAtLocation(self, coords):
         match self.enemy[coords[0]][coords[1]]:
