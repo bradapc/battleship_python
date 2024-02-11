@@ -1,3 +1,5 @@
+import random
+
 class GameHandler:
     def __init__(self):
         self.player = player_board
@@ -11,10 +13,11 @@ class GameHandler:
         }
 
     def updateBoards(self):
-        self.player.updateBoard()
         self.enemy.updateBoard()
+        self.player.updateBoard()
 
     def beginInitializeBoard(self):
+        #Initialize player board
         for key in self.battleship_ships:
             while True:
                 print(f"Enter col coord for your {key} [{self.battleship_ships[key]}].")
@@ -26,7 +29,7 @@ class GameHandler:
                     coordinate_list = []
                     for i in range(self.battleship_ships[key]):
                         coordinate_list.append((coords[0] + i, coords[1]))
-                    if(self.checkInitialShipCoords(coordinate_list, self.battleship_ships[key], self.player)):
+                    if(self.checkInitialShipCoords(coordinate_list, self.player)):
                         print(f"{key} placed at {coords}.")
                         self.player.ships.append(Ship(True, self.battleship_ships[key], coordinate_list))
                         self.updateBoards()
@@ -36,8 +39,24 @@ class GameHandler:
                         continue
                 except:
                     continue
+        #Initialize computer board
+        for key in self.battleship_ships:
+            while True:
+                try:
+                    coords = (random.randint(0,9), random.randint(0,9))
+                    coordinate_list = []
+                    for i in range(self.battleship_ships[key]):
+                        coordinate_list.append((coords[0] + i, coords[1]))
+                    if(self.checkInitialShipCoords(coordinate_list, self.enemy)):
+                        self.enemy.ships.append(Ship(False, self.battleship_ships[key], coordinate_list))
+                        self.updateBoards()
+                        break
+                    else:
+                        continue
+                except:
+                    continue
 
-    def checkInitialShipCoords(self, coordinate_list, len, board_entity):
+    def checkInitialShipCoords(self, coordinate_list, board_entity):
         for c_pair in coordinate_list:
             try:
                 if(board_entity.board[c_pair[0]][c_pair[1]]):
