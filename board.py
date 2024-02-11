@@ -1,4 +1,5 @@
 import random
+from time import sleep
 
 class GameHandler:
     def __init__(self):
@@ -12,9 +13,13 @@ class GameHandler:
             'Destroyer': 2 
         }
 
-    def updateBoards(self):
+    def updateBoards(self, *args):
         self.enemy.updateBoard()
         self.player.updateBoard()
+        if(args):
+            print("")
+            print(args[0])
+            print("")
 
     def beginInitializeBoard(self):
         #Initialize player board
@@ -87,12 +92,13 @@ class GameHandler:
                 row = input()
                 try:
                     shot_coords = (int(col), int(row))
-                    if(self.enemy.board[shot_coords[0]][shot_coords[1]] != '*'):
+                    if(self.enemy.board[shot_coords[0]][shot_coords[1]] not in ["*", "-"]):
                         self.player.fireAtLocation(shot_coords)
                         winner = self.checkForWinner(self.enemy)
                         if winner:
                             name_of_winner = self.player
                         player_turn = False
+                        sleep(2)
                     else:
                         print("You've already shot there!")
                 except:
@@ -100,7 +106,7 @@ class GameHandler:
             else:
                 shot_coords = (random.randint(0,9), random.randint(0,9))
                 try:
-                    if(self.player.board[shot_coords[0]][shot_coords[1]] != '*'):
+                    if(self.player.board[shot_coords[0]][shot_coords[1]] not in ["*", "-"]):
                         self.enemy.fireAtLocation(shot_coords)
                         winner = self.checkForWinner(self.player)
                         if winner:
@@ -145,21 +151,30 @@ class Board:
         else:
             print("AI")
         print("   0  1  2  3  4  5  6  7  8  9")
-        for col in range(len(self.board)):
-            print(f"{col} {''.join(f'[{item}]' if item else '[ ]' for item in self.board[col])}")
+        if(self.player):
+            for col in range(len(self.board)):
+                print(f"{col} {''.join(f'[{item}]' if item else '[ ]' for item in self.board[col])}")
+        else:
+            for col in range(len(self.board)):
+                print(f"{col} {''.join(f'[{item}]' if item in ["*", "-"] else '[ ]' for item in self.board[col])}")
 
     def fireAtLocation(self, coords):
+        event_report = ''
         match self.enemy[coords[0]][coords[1]]:
             case 'X':
                 self.enemy[coords[0]][coords[1]] = '*'
-                game.updateBoards()
                 if(self.player):
-                    print(f'Hit enemy at {coords[0], coords[1]}!')
+                    event_report = f'>>>Hit enemy at {coords[0], coords[1]}!'
+                else:
+                    event_report = ">>>You've been hit!"
+                game.updateBoards(event_report)
             case '':
-                self.enemy[coords[0]][coords[1]] = '*'
-                game.updateBoards()
+                self.enemy[coords[0]][coords[1]] = '-'
                 if(self.player):
-                    print("Shot missed!")
+                    event_report = ">>>Shot missed!"
+                else:
+                    event_report = ">>>AI shot missed!"
+                game.updateBoards(event_report)
 
 class Ship:
     def __init__(self, is_player, length, coordinate_list):
