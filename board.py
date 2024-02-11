@@ -2,9 +2,49 @@ class GameHandler:
     def __init__(self):
         self.player = player_board
         self.enemy = enemy_board
+        self.battleship_ships = {
+            'Carrier': 5,
+            'Battleship': 4,
+            'Cruiser':	3,
+            'Submarine': 3,
+            'Destroyer': 2 
+        }
+
     def updateBoards(self):
         self.player.updateBoard()
         self.enemy.updateBoard()
+
+    def beginInitializeBoard(self):
+        for key in self.battleship_ships:
+            while True:
+                print(f"Enter col coord for your {key} [{self.battleship_ships[key]}].")
+                col = input()
+                print(f"Enter row coord for your {key} [{self.battleship_ships[key]}].")
+                row = input()
+                try:
+                    coords = (int(col), int(row))
+                    coordinate_list = []
+                    for i in range(self.battleship_ships[key]):
+                        coordinate_list.append((coords[0] + i, coords[1]))
+                    if(self.checkInitialShipCoords(coordinate_list, self.battleship_ships[key], self.player)):
+                        print(f"{key} placed at {coords}.")
+                        self.player.ships.append(Ship(True, self.battleship_ships[key], coordinate_list))
+                        self.updateBoards()
+                        break
+                    else:
+                        print("Incorrect placement.")
+                        continue
+                except:
+                    continue
+
+    def checkInitialShipCoords(self, coordinate_list, len, board_entity):
+        for c_pair in coordinate_list:
+            try:
+                if(board_entity.board[c_pair[0]][c_pair[1]]):
+                    return False
+            except:
+                return False
+        return True
 
 
 class Board:
@@ -41,31 +81,16 @@ class Board:
                 print("Miss!")
 
 class Ship:
-    def __init__(self, is_player, length, pos):
+    def __init__(self, is_player, length, coordinate_list):
         self.is_player = is_player
         self.length = length
-        self.pos = pos
+        self.coordinate_list = coordinate_list
         self.alive = True
         self.coordinates = None
         if(self.is_player):
             self.board_entity = player_board
         else:
             self.board_entity = enemy_board
-        self.board_entity.ships.append(self)
-        self.checkInitialShipCoords()
-
-    def checkInitialShipCoords(self):
-        #Create a list of coordinates that the ship is expected to take on the board.
-        coordinate_list = []
-        for i in range(self.length):
-            coordinate_list.append((self.pos[0] + i, self.pos[1]))
-        #Check the board to see if the coordinates can be placed.
-        for c_pair in coordinate_list:
-            try:
-                if(self.board_entity.board[c_pair[0]][c_pair[1]]):
-                    return False
-            except:
-                return False
         self.placeShip(coordinate_list)
     
     def placeShip(self, coordinate_list):
@@ -89,9 +114,4 @@ if __name__ == '__main__':
     game = GameHandler()
     player_board.enemy = enemy_board.board
     enemy_board.enemy = player_board.board
-    destroyer = Ship(True, 5, (4,4))
-    destroyer = Ship(False, 3, (4,4))
-    player_board.fireAtLocation((4,4))
-    player_board.fireAtLocation((5,4))
-    player_board.fireAtLocation((6,4))
-    print(destroyer.isShipAlive())
+    game.beginInitializeBoard()
