@@ -1,5 +1,5 @@
 class GameHandler:
-    def __init__(self, player, enemy):
+    def __init__(self):
         self.player = player_board
         self.enemy = enemy_board
     def updateBoards(self):
@@ -10,6 +10,7 @@ class GameHandler:
 class Board:
     def __init__(self, player):
         self.player = player
+        self.ships = []
         self.board = []
         self.enemy = ''
         for col in range(10):
@@ -40,15 +41,17 @@ class Board:
                 print("Miss!")
 
 class Ship:
-    def __init__(self, player, length, pos):
-        self.player = player
+    def __init__(self, is_player, length, pos):
+        self.is_player = is_player
         self.length = length
         self.pos = pos
         self.alive = True
-        if(self.player):
+        self.coordinates = None
+        if(self.is_player):
             self.board_entity = player_board
         else:
             self.board_entity = enemy_board
+        self.board_entity.ships.append(self)
         self.checkInitialShipCoords()
 
     def checkInitialShipCoords(self):
@@ -66,16 +69,29 @@ class Ship:
         self.placeShip(coordinate_list)
     
     def placeShip(self, coordinate_list):
+        self.coordinates = coordinate_list
         for c_pair in coordinate_list:
             self.board_entity.board[c_pair[0]][c_pair[1]] = 'X'
         self.board_entity.updateBoard()
 
+    def isShipAlive(self):
+        hp = self.length
+        for coord in self.coordinates:
+            if(self.board_entity.board[coord[0]][coord[1]]) == '*':
+                hp -= 1
+        if(hp > 0):
+            return True
+        return False
+
 if __name__ == '__main__':
     player_board = Board(player=True)
     enemy_board = Board(player=False)
-    game = GameHandler(player_board, enemy_board)
+    game = GameHandler()
     player_board.enemy = enemy_board.board
     enemy_board.enemy = player_board.board
     destroyer = Ship(True, 5, (4,4))
-    destroyer = Ship(False, 5, (4,4))
+    destroyer = Ship(False, 3, (4,4))
     player_board.fireAtLocation((4,4))
+    player_board.fireAtLocation((5,4))
+    player_board.fireAtLocation((6,4))
+    print(destroyer.isShipAlive())
